@@ -1,0 +1,18 @@
+# Visualization enabled
+/vis/scene/create
+/vis/scene/add/volume
+/vis/sceneHandler/create OGLIWin32
+
+/vis/viewer/create
+/vis/viewer/set/viewpointThetaPhi 70 10
+
+# Storing of trajectories
+/tracking/storeTrajectory 1
+/vis/scene/endOfEventAction accumulate
+
+# Verbose control
+/tracking/verbose 0
+/run/verbose 0
+
+# Shoot 1000 protons
+/run/beamOn 1000
