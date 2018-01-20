@@ -1,0 +1,22 @@
+#/run/numberOfWorkers 4
+/run/initialize
+#
+/control/verbose 2
+/run/verbose 2
+#
+# gamma 6 MeV to the direction (1.,0.,0.)
+# 10000 events
+#
+/gun/particle gamma
+/gun/energy 1 MeV
+#
+/run/printProgress 100
+/run/beamOn 1000
+# 
+# gamma 1 MeV to the direction (1.,0.,0.)
+# 1000 events
+#
+#/gun/particle gamma
+#/gun/energy 1 MeV
+#
+/run/beamOn 1000

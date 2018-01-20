@@ -1,6 +1,7 @@
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h 1
 
+#include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
@@ -24,6 +25,8 @@ public:
 
 	G4VPhysicalVolume* Construct();
 
+	G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
+
 private:
 
 	G4double           WorldSizeX;
@@ -40,6 +43,8 @@ private:
 
 	G4Material*        defaultMaterial;
 	G4Material*        detectorMaterial;
+
+	G4LogicalVolume*  fScoringVolume;
 
 	void DefineMaterials();
 

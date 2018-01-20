@@ -15,8 +15,11 @@ public:
 
 	void GeneratePrimaries(G4Event*);
 
+    	// method to access particle gun
+    	const G4ParticleGun* GetParticleGun() const { return fParticleGun; }
+
 private:
-	G4ParticleGun*           particleGun;
+	G4ParticleGun*           fParticleGun;
 	DetectorConstruction*    Detector;
 };
 

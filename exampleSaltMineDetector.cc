@@ -3,20 +3,24 @@
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 #include "G4UIcsh.hh"
+#include "G4UImanager.hh"
 #include "DetectorConstruction.hh"
 #include "PhysicsList.hh"
 #include "PrimaryGeneratorAction.hh"
+#include "G4VisExecutive.hh"
+#include "G4UIExecutive.hh"
 //#include "RunAction.hh"
 //#include "EventAction.hh"
 //#include "SteppingAction.hh"
 
-// If one wishes to use vizualisation
-#ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
-#endif
 
 // Main called with optional arguments
 int main(int argc, char** argv) {
+
+        G4UIExecutive* ui = 0;
+ 	if ( argc == 1 ) {
+    	  ui = new G4UIExecutive(argc, argv);
+  	}
 
 	// Construct the default run manager
 	G4RunManager * runManager = new G4RunManager;
@@ -39,41 +43,36 @@ int main(int argc, char** argv) {
 	//runManager->SetUserAction(new SteppingAction(RunAct, detector, primary));
 
 	// Visualization manager
-#ifdef G4VIS_USE
+	
 	G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialize();
-#endif
 
 	// Initialize Geant4 kernel
 	runManager->Initialize();
 
-	// Remove user output files
-	//system("rm -rf dose.txt");
+  	// Get the pointer to the User Interface manager
+  	G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-	// Get the pointer to the User Interface manager 
-	G4UImanager* UI = G4UImanager::GetUIpointer();
+	// Process macro or start UI session
+  	//
+  	if ( ! ui ) { 
+    	  // batch mode
+    	  G4String command = "/control/execute ";
+    	  G4String fileName = argv[1];
+    	  UImanager->ApplyCommand(command+fileName);
+  }
+  	else { 
+    	  // interactive mode
+          UImanager->ApplyCommand("/control/execute init_vis.mac");
+          ui->SessionStart();
+        delete ui;
+  }
 
-	if (argc == 1)   // Define UI session for interactive mode.
-	{
-		G4UIsession * session = new G4UIterminal(new G4UIcsh);
-		//Use of a command macro file
-		UI->ApplyCommand("/control/execute run.mac");
-		session->SessionStart();
-		delete session;
-	}
-
-	else           // Batch mode
-	{
-		G4String command = "/control/execute ";
-		G4String fileName = argv[1];
-		UI->ApplyCommand(command + fileName);
-	}
-
-#ifdef G4VIS_USE
-	delete visManager;
-#endif
-
-	delete runManager;
-
-	return 0;
+  // Job termination
+  // Free the store: user actions, physics_list and detector_description are
+  // owned and deleted by the run manager, so they should not be deleted 
+  // in the main() program !
+  
+  delete visManager;
+  delete runManager;
 }

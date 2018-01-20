@@ -7,20 +7,28 @@
 #include "G4Tubs.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
+#include "G4Box.hh"
+#include "G4RunManager.hh"
+#include "G4ParticleGun.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4SystemOfUnits.hh"
+#include "Randomize.hh"
 
 // Specify constructed detector in argument
 PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction* DC)
-	:Detector(DC)
+	: Detector(DC)
 {
 	// Define particle gun object
 	G4int n_particle = 1;
-	particleGun = new G4ParticleGun(n_particle);
-
+	fParticleGun = new G4ParticleGun(n_particle);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
-	delete particleGun;
+	delete fParticleGun;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
@@ -32,8 +40,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	G4double x0, y0, z0, theta, phi, xMom0, yMom0, zMom0, e0;
 
 	// Specify kinetic energy
-	e0 = 3 * MeV;
-	particleGun->SetParticleEnergy(e0);
+	e0 = 1 * MeV;
+	fParticleGun->SetParticleEnergy(e0);
 
 	// Specify emission direction
 	theta = 0;
@@ -41,19 +49,21 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	xMom0 = std::sin(theta);
 	yMom0 = std::sin(phi);
 	zMom0 = std::sqrt(1. - xMom0*xMom0 - yMom0*yMom0);
-	particleGun->SetParticleMomentumDirection(G4ThreeVector(xMom0, yMom0, zMom0));
+	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(xMom0, yMom0, zMom0));
 
 	// Specify emission point
-	x0 = 0;
-	y0 = 0;
-	z0 = -20 * micrometer;
-	particleGun->SetParticlePosition(G4ThreeVector(x0, y0, z0));
+	x0 = -8.000001 * m;
+	y0 = 0 * m;
+	z0 = 0 * m;
+	fParticleGun->SetParticlePosition(G4ThreeVector(x0, y0, z0));
 
 	// Select electron
-	G4ParticleDefinition* particle =
-		G4ParticleTable::GetParticleTable()->FindParticle("electron");
+  	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  	G4String particleName;
+  	G4ParticleDefinition* particle
+    		= particleTable->FindParticle(particleName="gamma");
 
-	particleGun->SetParticleDefinition(particle);
+	fParticleGun->SetParticleDefinition(particle);
 
 	// Example of output display
 	G4cout
@@ -67,7 +77,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		<< G4endl;
 
 	// Shoot
-	particleGun->GeneratePrimaryVertex(anEvent);
+	fParticleGun->GeneratePrimaryVertex(anEvent);
 
 }
 
