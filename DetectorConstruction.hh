@@ -13,19 +13,19 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 
+class G4VPhysicalVolume;
+
 // Class deriving from the virtual G4VUserDetectorConstruction class
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 
 public:
-
 	DetectorConstruction();
+	virtual ~DetectorConstruction();
+public:
+	virtual G4VPhysicalVolume* Construct();
+	virtual void ConstructSDandField();
 
-	~DetectorConstruction();
-
-	G4VPhysicalVolume* Construct();
-
-	G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
 private:
 
@@ -44,11 +44,9 @@ private:
 	G4Material*        defaultMaterial;
 	G4Material*        detectorMaterial;
 
-	G4LogicalVolume*  fScoringVolume;
-
 	void DefineMaterials();
-
 	G4VPhysicalVolume* ConstructDetector();
+	G4int fNofLayers;
 };
 
 

@@ -1,125 +1,95 @@
-
-
 #include "RunAction.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "DetectorConstruction.hh"
+#include "Analysis.hh"
 
-#include "G4RunManager.hh"
 #include "G4Run.hh"
-#include "G4AccumulableManager.hh"
-#include "G4LogicalVolumeStore.hh"
-#include "G4LogicalVolume.hh"
+#include "G4RunManager.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4ParticleGun.hh"
-#include "G4ParticleTable.hh"
-#include "G4ParticleDefinition.hh"
+
 
 RunAction::RunAction()
-: G4UserRunAction(),
-  fEdep(0.),
-  fEdep2(0.)
+ : G4UserRunAction()
 { 
+  // set printing event number per each event
+  G4RunManager::GetRunManager()->SetPrintProgress(1);     
 
-  // Register accumulable to the accumulable manager
-  G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
-  accumulableManager->RegisterAccumulable(fEdep);
-  accumulableManager->RegisterAccumulable(fEdep2); 
+  // Create analysis manager
+  // The choice of analysis technology is done via selectin of a namespace
+  // in Analysis.hh
+  auto analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  // Create directories 
+  //analysisManager->SetHistoDirectoryName("histograms");
+  //analysisManager->SetNtupleDirectoryName("ntuple");
+  analysisManager->SetVerboseLevel(1);
+  //analysisManager->SetNtupleMerging(true);
+    // Note: merging ntuples is available only with Root output
+
+  // Book histograms, ntuple
+  //
+  
+  // Creating histograms
+  analysisManager->CreateH1("Edet","Edep in detector", 100, 0., 5*MeV);
+  analysisManager->CreateH1("Ldet","trackL in detector", 100, 0., 1*m);
+
+  // Creating ntuple
+  //
+  analysisManager->CreateNtuple("ND", "Edep and TrackL");
+  analysisManager->CreateNtupleDColumn("Edet");
+  analysisManager->CreateNtupleDColumn("Ldet");
+  analysisManager->FinishNtuple();
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{}
+{
+  delete G4AnalysisManager::Instance();  
+}
 
 
-
-void RunAction::BeginOfRunAction(const G4Run*)
+void RunAction::BeginOfRunAction(const G4Run* /*run*/)
 { 
-  // inform the runManager to save random number seed
-  G4RunManager::GetRunManager()->SetRandomNumberStore(false);
+  //inform the runManager to save random number seed
+  //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
+  
+  // Get analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
 
-  // reset accumulables to their initial values
-  G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
-  accumulableManager->Reset();
-
-}
-
-
-
-void RunAction::EndOfRunAction(const G4Run* run)
-{
-  G4int nofEvents = run->GetNumberOfEvent();
-  if (nofEvents == 0) return;
-
-  // Merge accumulables 
-  G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
-  accumulableManager->Merge();
-
-  // Compute dose = total energy deposit in a run and its variance
+  // Open an output file
   //
-  G4double edep  = fEdep.GetValue();
-  G4double edep2 = fEdep2.GetValue();
-  
-  G4double rms = edep2 - edep*edep/nofEvents;
-  if (rms > 0.) rms = std::sqrt(rms); else rms = 0.;  
-
-  const DetectorConstruction* detectorConstruction
-   = static_cast<const DetectorConstruction*>
-     (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-  G4double mass = detectorConstruction->GetScoringVolume()->GetMass();
-  G4double dose = edep/mass;
-  G4double rmsDose = rms/mass;
-
-  // Run conditions
-  //  note: There is no primary generator action object for "master"
-  //        run manager for multi-threaded mode.
-  const PrimaryGeneratorAction* generatorAction
-   = static_cast<const PrimaryGeneratorAction*>
-     (G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
-  G4String runCondition;
-  if (generatorAction)
-  {
-    const G4ParticleGun* particleGun = generatorAction->GetParticleGun();
-    runCondition += particleGun->GetParticleDefinition()->GetParticleName();
-    runCondition += " of ";
-    G4double particleEnergy = particleGun->GetParticleEnergy();
-    runCondition += G4BestUnit(particleEnergy,"Energy");
-  }
-        
-  // Print
-  //  
-  if (IsMaster()) {
-    G4cout
-     << G4endl
-     << "--------------------End of Global Run-----------------------";
-  }
-  else {
-    G4cout
-     << G4endl
-     << "--------------------End of Local Run------------------------";
-  }
-  
-  G4cout
-     << G4endl
-     << " The run consists of " << nofEvents << " "<< runCondition
-     << G4endl
-     << " Cumulated dose per run, in scoring volume : " 
-     << G4BestUnit(dose,"Dose") << " rms = " << G4BestUnit(rmsDose,"Energy")
-     << G4endl
-     << "------------------------------------------------------------"
-     << G4endl
-     << G4endl;
+  G4String fileName = "ND.root";
+  analysisManager->OpenFile(fileName);
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::AddEdep(G4double edep)
+void RunAction::EndOfRunAction(const G4Run* /*run*/)
 {
-  fEdep  += edep;
-  fEdep2 += edep*edep;
+  // print histogram statistics
+  //
+  auto analysisManager = G4AnalysisManager::Instance();
+  if ( analysisManager->GetH1(1) ) {
+    G4cout << G4endl << " ----> print histograms statistic ";
+    if(isMaster) {
+      G4cout << "for the entire run " << G4endl << G4endl; 
+    }
+    else {
+      G4cout << "for the local thread " << G4endl << G4endl; 
+    }
+    
+    G4cout << " Edet : mean = " 
+       << G4BestUnit(analysisManager->GetH1(0)->mean(), "Energy") 
+       << " rms = " 
+       << G4BestUnit(analysisManager->GetH1(0)->rms(),  "Energy") << G4endl;
+     
+    G4cout << " Ldet : mean = " 
+      << G4BestUnit(analysisManager->GetH1(1)->mean(), "Length") 
+      << " rms = " 
+      << G4BestUnit(analysisManager->GetH1(1)->rms(),  "Length") << G4endl;
+  }
+
+  // save histograms & ntuple
+  //
+  analysisManager->Write();
+  analysisManager->CloseFile();
 }
-
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

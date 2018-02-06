@@ -2,16 +2,25 @@
 #define RunAction_h 1
 
 #include "G4UserRunAction.hh"
-#include "G4Accumulable.hh"
 #include "globals.hh"
 
 class G4Run;
 
 /// Run action class
 ///
-/// In EndOfRunAction(), it calculates the doposition in the selected volume 
-/// from the energy deposit accumulated via stepping and event actions.
-/// The computed dose is then printed on the screen.
+/// It accumulates statistic and computes dispersion of the energy deposit 
+/// and track lengths of charged particles with use of analysis tools:
+/// H1D histograms are created in BeginOfRunAction() for the following 
+/// physics quantities:
+/// - Edep in detector
+/// - Track length in detector
+/// The same values are also saved in the ntuple.
+/// The histograms and ntuple are saved in the output file in a format
+/// accoring to a selected technology in Analysis.hh.
+///
+/// In EndOfRunAction(), the accumulated statistic and computed 
+/// dispersion is printed.
+///
 
 class RunAction : public G4UserRunAction
 {
@@ -19,16 +28,10 @@ class RunAction : public G4UserRunAction
     RunAction();
     virtual ~RunAction();
 
-    // virtual G4Run* GenerateRun();
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
-
-    void AddEdep (G4double edep); 
-
-  private:
-    G4Accumulable<G4double> fEdep;
-    G4Accumulable<G4double> fEdep2;
 };
+
 
 #endif
 

@@ -1,4 +1,7 @@
 #include "DetectorConstruction.hh"
+#include "NeutrinoDetectorSD.hh"
+#include "G4SDManager.hh"
+
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Element.hh"
@@ -17,7 +20,7 @@
 
 DetectorConstruction::DetectorConstruction()
 : G4VUserDetectorConstruction(),
-  fScoringVolume(0)
+  fNofLayers(-1)
 { }
 
 DetectorConstruction::~DetectorConstruction()
@@ -102,6 +105,8 @@ void DetectorConstruction::DefineMaterials()
 
 G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 {
+	// Layers
+        fNofLayers = 10;
 
 	// MANDATORY MOTHER "WORLD" VOLUME
 
@@ -155,8 +160,6 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 				      physiCavern,			//its mother  volume
 				      false,				//no boolean operation
 			              0);				//copy number
-	fScoringVolume = logicTube;
-
 
 	// Visualization attributes
 	G4VisAttributes* cavernVisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0)); //Blue Water
@@ -177,3 +180,15 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	return physiCavern;
 }
 
+void DetectorConstruction::ConstructSDandField()
+{
+  // G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
+
+  // 
+  // Sensitive detectors
+  //
+  auto TubeSD 
+    = new NeutrinoDetectorSD("NeutrinoDetectorSD", "NeutrinoDetectorHitsCollection", fNofLayers);
+  G4SDManager::GetSDMpointer()->AddNewDetector(TubeSD);
+  SetSensitiveDetector("Tube",TubeSD);
+}

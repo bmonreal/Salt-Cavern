@@ -1,83 +1,74 @@
 #include "PrimaryGeneratorAction.hh"
-#include "G4PVPlacement.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4Element.hh"
-#include "G4Material.hh"
-#include "G4NistManager.hh"
-#include "G4Tubs.hh"
-#include "G4LogicalVolume.hh"
-#include "G4Box.hh"
+
+#include "G4RunManager.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
-#include "G4RunManager.hh"
+#include "G4Event.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
 
-// Specify constructed detector in argument
-PrimaryGeneratorAction::PrimaryGeneratorAction(DetectorConstruction* DC)
-	: Detector(DC)
+
+PrimaryGeneratorAction::PrimaryGeneratorAction()
+ : G4VUserPrimaryGeneratorAction(),
+   fParticleGun(nullptr)
 {
-	// Define particle gun object
-	G4int n_particle = 1;
-	fParticleGun = new G4ParticleGun(n_particle);
+  G4int nofParticles = 1;
+  fParticleGun = new G4ParticleGun(nofParticles);
+
+  // default particle kinematic
+  //
+  auto particleDefinition 
+    = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+  fParticleGun->SetParticleDefinition(particleDefinition);
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
+  fParticleGun->SetParticleEnergy(1.*MeV);
 }
+
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
-	delete fParticleGun;
+  delete fParticleGun;
 }
+
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	// Get simulation current event number
-	G4int numEvent;
-	numEvent = anEvent->GetEventID() + 1;
+  // This function is called at the begining of event
 
-	G4double x0, y0, z0, theta, phi, xMom0, yMom0, zMom0, e0;
+  // In order to avoid dependence of PrimaryGeneratorAction
+  // on DetectorConstruction class we get world volume 
+  // from G4LogicalVolumeStore
+  //
+  G4double worldZHalfLength = 0.;
+  auto logicCavern = G4LogicalVolumeStore::GetInstance()->GetVolume("Cavern");
 
-	// Specify kinetic energy
-	e0 = 1 * MeV;
-	fParticleGun->SetParticleEnergy(e0);
+  // Check that the world volume has box shape
+  G4Box* worldBox = nullptr;
+  if (  logicCavern) {
+    worldBox = dynamic_cast<G4Box*>(logicCavern->GetSolid());
+  }
 
-	// Specify emission direction
-	theta = 0;
-	phi = 0;
-	xMom0 = std::sin(theta);
-	yMom0 = std::sin(phi);
-	zMom0 = std::sqrt(1. - xMom0*xMom0 - yMom0*yMom0);
-	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(xMom0, yMom0, zMom0));
+  if ( worldBox ) {
+    worldZHalfLength = worldBox->GetZHalfLength();  
+  }
+  else  {
+    G4ExceptionDescription msg;
+    msg << "World volume of box shape not found." << G4endl;
+    msg << "Perhaps you have changed geometry." << G4endl;
+    msg << "The gun will be place in the center.";
+    G4Exception("B4PrimaryGeneratorAction::GeneratePrimaries()",
+      "MyCode0002", JustWarning, msg);
+  } 
+  
+  // Set gun position
+  fParticleGun
+    ->SetParticlePosition(G4ThreeVector(-8.001, 0., 0.));
 
-	// Specify emission point
-	x0 = -8.000001 * m;
-	y0 = 0 * m;
-	z0 = 0 * m;
-	fParticleGun->SetParticlePosition(G4ThreeVector(x0, y0, z0));
-
-	// Select electron
-  	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  	G4String particleName;
-  	G4ParticleDefinition* particle
-    		= particleTable->FindParticle(particleName="gamma");
-
-	fParticleGun->SetParticleDefinition(particle);
-
-	// Example of output display
-	G4cout
-		<< "-> Event= " << numEvent
-		<< " : Theta (mrad)= " << theta / mrad
-		<< " - Phi (mrad)= " << phi / mrad
-		<< " - x0 (um)= " << x0 / um
-		<< " - y0 (um)= " << y0 / um
-		<< " - z0 (um)= " << z0 / um
-		<< " - e0 (MeV)= " << e0 / MeV
-		<< G4endl;
-
-	// Shoot
-	fParticleGun->GeneratePrimaryVertex(anEvent);
-
+  fParticleGun->GeneratePrimaryVertex(anEvent);
 }
+
 
