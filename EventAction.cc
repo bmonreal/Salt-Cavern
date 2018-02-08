@@ -1,9 +1,12 @@
 #include "EventAction.hh"
 #include "NeutrinoDetectorSD.hh"
 #include "NeutrinoDetectorHit.hh"
+#include "PrimaryGeneratorAction.hh"
 #include "Analysis.hh"
+#include "RunAction.hh"
 
 #include "G4RunManager.hh"
+#include "G4Track.hh"
 #include "G4Event.hh"
 #include "G4SDManager.hh"
 #include "G4HCofThisEvent.hh"
@@ -11,11 +14,12 @@
 
 #include "Randomize.hh"
 #include <iomanip>
+#include "G4PhysicalConstants.hh"
 
 
 EventAction::EventAction()
- : G4UserEventAction(),
-   fTubeHCID(-1)
+ : G4UserEventAction(),	
+   fTubeHCID(-1) 
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -57,8 +61,9 @@ void EventAction::PrintEventStatistics(
 }
 
 
-void EventAction::BeginOfEventAction(const G4Event* /*event*/)
-{}
+void EventAction::BeginOfEventAction(const G4Event* event)
+{
+}
 
 
 void EventAction::EndOfEventAction(const G4Event* event)
@@ -84,19 +89,22 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
     PrintEventStatistics(
     tubeHit->GetEdep(), tubeHit->GetTrackLength());  
-  }
-  // Fill histograms, ntuple
-  //
 
-  // get analysis manager
+  
+  }
+
   auto analysisManager = G4AnalysisManager::Instance();
- 
   // fill histograms
   analysisManager->FillH1(0, tubeHit->GetEdep());
   analysisManager->FillH1(1, tubeHit->GetTrackLength());
+
   
   // fill ntuple
   analysisManager->FillNtupleDColumn(0, tubeHit->GetEdep());
   analysisManager->FillNtupleDColumn(1, tubeHit->GetTrackLength());
   analysisManager->AddNtupleRow();  
 }  
+
+
+
+

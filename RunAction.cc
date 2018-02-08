@@ -23,21 +23,23 @@ RunAction::RunAction()
   //analysisManager->SetHistoDirectoryName("histograms");
   //analysisManager->SetNtupleDirectoryName("ntuple");
   analysisManager->SetVerboseLevel(1);
-  //analysisManager->SetNtupleMerging(true);
+  analysisManager->SetNtupleMerging(true);
     // Note: merging ntuples is available only with Root output
 
   // Book histograms, ntuple
   //
   
   // Creating histograms
-  analysisManager->CreateH1("Edet","Edep in detector", 100, 0., 5*MeV);
-  analysisManager->CreateH1("Ldet","trackL in detector", 100, 0., 1*m);
+  analysisManager->CreateH1("Edet","Edep in detector", 100, 0., 1.*MeV);
+  analysisManager->CreateH1("Ldet","trackL in detector", 100, 0., 0.015*m);
+  analysisManager->CreateH1("StartingPt","StartingPt", 100, 0., 20*m);
 
   // Creating ntuple
   //
-  analysisManager->CreateNtuple("ND", "Edep and TrackL");
+  analysisManager->CreateNtuple("ND", "Edep and TrackL and StartingPt");
   analysisManager->CreateNtupleDColumn("Edet");
   analysisManager->CreateNtupleDColumn("Ldet");
+  analysisManager->CreateNtupleDColumn("StartingPt");
   analysisManager->FinishNtuple();
 }
 
@@ -51,14 +53,14 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* /*run*/)
 { 
   //inform the runManager to save random number seed
-  //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
+  G4RunManager::GetRunManager()->SetRandomNumberStore(true);
   
   // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
   //
-  G4String fileName = "ND.root";
+  G4String fileName = "Run1Data.root";
   analysisManager->OpenFile(fileName);
 }
 

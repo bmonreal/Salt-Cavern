@@ -9,12 +9,14 @@
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 #include "Randomize.hh"
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(nullptr)
+   
 {
   G4int nofParticles = 1;
   fParticleGun = new G4ParticleGun(nofParticles);
@@ -26,6 +28,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun->SetParticleDefinition(particleDefinition);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
   fParticleGun->SetParticleEnergy(1.*MeV);
+
+  
 }
 
 
@@ -38,7 +42,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // This function is called at the begining of event
-
   // In order to avoid dependence of PrimaryGeneratorAction
   // on DetectorConstruction class we get world volume 
   // from G4LogicalVolumeStore
@@ -63,12 +66,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4Exception("B4PrimaryGeneratorAction::GeneratePrimaries()",
       "MyCode0002", JustWarning, msg);
   } 
-  
-  // Set gun position
+  // Set gun position: Uniformly random on (8m, 20m)
+  const G4double r = 8.*m;
+  const G4double xmax = 20.*m;
+  G4double fstartingpoint = r + (xmax - r)*G4UniformRand();
   fParticleGun
-    ->SetParticlePosition(G4ThreeVector(-8.001, 0., 0.));
-
+    ->SetParticlePosition(G4ThreeVector(-fstartingpoint, 0., 0.));
   fParticleGun->GeneratePrimaryVertex(anEvent);
+
 }
 
 

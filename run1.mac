@@ -16,10 +16,9 @@
 # 3 events
 /gun/particle e-
 /gun/energy 1 MeV
-/run/beamOn 3
 # 
 /tracking/verbose 0
 /run/printProgress 5
-/run/beamOn 20
+/run/beamOn 125000
 
 

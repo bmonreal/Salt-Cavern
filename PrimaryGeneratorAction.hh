@@ -7,7 +7,7 @@
 class G4ParticleGun;
 class G4Event;
 
-/// The primary generator action class with particle gum.
+/// The primary generator action class with particle gun.
 ///
 /// It defines a single particle which hits the detector 
 /// perpendicular to the input face. The type of the particle
@@ -25,8 +25,13 @@ public:
   // set methods
   void SetRandomFlag(G4bool value);
 
+public:
+  G4double GetStartingPoint() { return fstartingpoint; };
+
 private:
+  G4double        fstartingpoint;
   G4ParticleGun*  fParticleGun; // G4 particle gun
+
 };
 
 #endif
