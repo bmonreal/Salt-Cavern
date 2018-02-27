@@ -23,7 +23,7 @@ public:
   virtual void GeneratePrimaries(G4Event* event);
   
   // set methods
-  void SetRandomFlag(G4bool value);
+  //void SetRandomFlag(G4bool value);
 
 public:
   G4double GetStartingPoint() { return fstartingpoint; };
@@ -31,6 +31,7 @@ public:
 private:
   G4double        fstartingpoint;
   G4ParticleGun*  fParticleGun; // G4 particle gun
+
 
 };
 

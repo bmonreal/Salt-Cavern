@@ -2,7 +2,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
-#include "TrackingAction.hh"
+//#include "TrackingAction.hh"
 
 
 ActionInitialization::ActionInitialization()
@@ -31,7 +31,7 @@ void ActionInitialization::Build() const
 
   SetUserAction(new EventAction);
   
-  TrackingAction* trackingAction = new TrackingAction(primary);
-  SetUserAction(trackingAction);
+  //TrackingAction* trackingAction = new TrackingAction(primary);
+  //SetUserAction(trackingAction);
 }  
 

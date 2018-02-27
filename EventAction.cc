@@ -88,20 +88,24 @@ void EventAction::EndOfEventAction(const G4Event* event)
     G4cout << "---> End of event: " << eventID << G4endl;     
 
     PrintEventStatistics(
-    tubeHit->GetEdep(), tubeHit->GetTrackLength());  
-
-  
+    tubeHit->GetEdep(), tubeHit->GetTrackLength()); 
+ 
   }
+
+  G4ThreeVector primaryVertex = event->GetPrimaryVertex()->GetPosition(); 
+  G4double r = primaryVertex.mag();
+  G4cout << "---> Vertex Position (radially): " << r << G4endl;  
 
   auto analysisManager = G4AnalysisManager::Instance();
   // fill histograms
   analysisManager->FillH1(0, tubeHit->GetEdep());
   analysisManager->FillH1(1, tubeHit->GetTrackLength());
-
+  analysisManager->FillH1(2, r);
   
   // fill ntuple
   analysisManager->FillNtupleDColumn(0, tubeHit->GetEdep());
   analysisManager->FillNtupleDColumn(1, tubeHit->GetTrackLength());
+  analysisManager->FillNtupleDColumn(2, r);
   analysisManager->AddNtupleRow();  
 }  
 
