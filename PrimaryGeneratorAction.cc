@@ -27,7 +27,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     = G4ParticleTable::GetParticleTable()->FindParticle("e-");
   fParticleGun->SetParticleDefinition(particleDefinition);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
-  fParticleGun->SetParticleEnergy(5.*MeV);
+  fParticleGun->SetParticleEnergy(1.11*MeV);
 
   
 }
@@ -68,7 +68,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   } 
   // Set gun position: Uniformly random on (8m, 9m)
   const G4double r = 8.*m;
-  const G4double xmax = 9.*m;
+  const G4double xmax = 8.1*m;
   G4double fstartingpoint = r + (xmax-r)*G4UniformRand(); 
   fParticleGun
     ->SetParticlePosition(G4ThreeVector(-fstartingpoint, 0., 0.));

@@ -50,7 +50,8 @@ G4bool NeutrinoDetectorSD::ProcessHits(G4Step* step,
   auto edep = step->GetTotalEnergyDeposit();
   
   // step length
-  G4double stepLength = 0.;
+  G4double stepLength = step->GetStepLength();
+  G4ThreeVector deltaPosition = step->GetDeltaPosition();
   if ( step->GetTrack()->GetDefinition()->GetPDGCharge() != 0. ) {
     stepLength = step->GetStepLength();
   }

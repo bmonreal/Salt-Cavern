@@ -93,13 +93,17 @@ void DetectorConstruction::DefineMaterials()
 	G4Material* H2O = new G4Material(name="Water", density, ncomponents=2, kStateLiquid, 						 temperature, pressure);
 	H2O->AddElement(H, natoms=2);
 	H2O->AddElement(O, natoms=1);
-
+	//Case 6: Brine
+	density = 1.19 * g / cm3;
+	G4Material* Brine = new G4Material(name = "Brine", density, ncomponents=2);
+	Brine->AddMaterial(NaCl, fractionmass=26.0*perCent);
+	Brine->AddMaterial(H2O, fractionmass = 74.0*perCent);
 
 	// Display list of defined materials
 	G4cout << G4endl << *(G4Material::GetMaterialTable()) << G4endl;
 
 	// Default materials in setup
-	defaultMaterial = H2O;
+	defaultMaterial = Brine;
 	detectorMaterial = NeGas;
 }
 

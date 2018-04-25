@@ -1,50 +1,34 @@
 #include "SteppingAction.hh"
-#include "EventAction.hh"
-#include "DetectorConstruction.hh"
 
 #include "G4Step.hh"
+#include "G4Track.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 #include "G4LogicalVolume.hh"
 
-
-SteppingAction::SteppingAction(EventAction* eventAction)
-: G4UserSteppingAction(),
-  fEventAction(eventAction),
-  fScoringVolume(0)
+SteppingAction::SteppingAction()
+:G4UserSteppingAction()
 {}
-
 
 SteppingAction::~SteppingAction()
 {}
 
-
-void SteppingAction::UserSteppingAction(const G4Step* step)
+void SteppingAction::UserSteppingAction(const G4Step* aStep)
 {
-  if (!fScoringVolume) { 
-    const DetectorConstruction* detectorConstruction
-      = static_cast<const DetectorConstruction*>
-        (G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    fScoringVolume = detectorConstruction->GetScoringVolume();   
-  }
-
-  // get volume of the current step
-  G4LogicalVolume* volume 
-    = step->GetPreStepPoint()->GetTouchableHandle()
-      ->GetVolume()->GetLogicalVolume();
-      
-  // check if we are in scoring volume
-  if (volume != fScoringVolume) return;
-
-  // collect energy deposited in this step
-  G4double edepStep = step->GetTotalEnergyDeposit();
-  fEventAction->AddEdep(edepStep);  
-
-
-
-
-
+    if (aStep == 0) return;
+    G4StepPoint* spre = aStep->GetPreStepPoint();
+    G4StepPoint* spost = aStep->GetPostStepPoint();
+    auto prexyz = spre->GetPosition();
+    auto postxyz = spost->GetPosition();
+    G4cout<<"prepoint = "<<prexyz<<G4endl;
+    G4cout<<"postpoint = "<<postxyz<<G4endl;
+    if (spre && spost && spre->GetPhysicalVolume()->GetName() ==
+            spost->GetPhysicalVolume()->GetName()) return;
+    G4cout << "post step volume=" << spost->GetPhysicalVolume()->GetName()
+        << G4endl;
+    if (spost->GetTouchable() == 0) return;
+    G4cout << "touchable name, repl #, copy # = "
+        << spost->GetTouchable()->GetVolume()->GetName() << ", "
+        << spost->GetTouchable()->GetReplicaNumber() << ", "
+        << spost->GetTouchable()->GetCopyNumber() << G4endl;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

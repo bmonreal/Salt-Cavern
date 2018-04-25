@@ -5,7 +5,9 @@
 #include "NeutrinoDetectorHit.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "G4UserTrackingAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "G4ThreeVector.hh"
+#include "NeutrinoDetectorSD.hh"
 
 #include "globals.hh"
 
@@ -24,19 +26,18 @@ public:
   EventAction();
   virtual ~EventAction();
 
-
-
   virtual void  BeginOfEventAction(const G4Event* event);
   virtual void    EndOfEventAction(const G4Event* event);
+  
     
 private:
   // methods
   NeutrinoDetectorHitsCollection* GetHitsCollection(G4int hcID,
                                             const G4Event* event) const;
-  void PrintEventStatistics(G4double tubeEdep, G4double tubeTrackLength) const;
 
+  void PrintEventStatistics(G4double tubeEdep, G4double tubeTrackLength) const;
   PrimaryGeneratorAction* fPrimary;
-  
+
   // data members                   
   G4int  fTubeHCID;
   G4double fstartingpoint;
