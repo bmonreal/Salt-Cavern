@@ -28,8 +28,10 @@ void ActionInitialization::Build() const
 
   RunAction* runAction = new RunAction;
   SetUserAction(runAction);
-  SetUserAction(new SteppingAction());
   SetUserAction(new EventAction);
+  SetUserAction(new SteppingAction());
+  
+
 
   
 }  

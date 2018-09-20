@@ -4,6 +4,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "Analysis.hh"
 #include "RunAction.hh"
+#include "SteppingAction.hh"
 
 #include "G4RunManager.hh"
 #include "G4TrackingManager.hh"
@@ -163,14 +164,16 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
   auto analysisManager = G4AnalysisManager::Instance();
   // fill histograms
-  analysisManager->FillH1(0, tubeHit->GetEdep());
-  analysisManager->FillH1(1, tubeHit->GetTrackLength());
-  analysisManager->FillH1(2, r);
+  //analysisManager->FillH1(0, tubeHit->GetEdep());
+  //analysisManager->FillH1(1, tubeHit->GetTrackLength());
+  //analysisManager->FillH1(2, r);
+
   
   // fill ntuple
   analysisManager->FillNtupleDColumn(0, tubeHit->GetEdep());
   analysisManager->FillNtupleDColumn(1, tubeHit->GetTrackLength());
   analysisManager->FillNtupleDColumn(2, r);
+  analysisManager->FillNtupleDColumn(3, eventID);
   analysisManager->AddNtupleRow();  
 }  
 

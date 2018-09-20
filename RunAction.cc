@@ -18,35 +18,45 @@ RunAction::RunAction()
   // in Analysis.hh
   auto analysisManager = G4AnalysisManager::Instance();
   G4cout << "Using " << analysisManager->GetType() << G4endl;
-
   // Create directories 
   //analysisManager->SetHistoDirectoryName("histograms");
   //analysisManager->SetNtupleDirectoryName("ntuple");
   analysisManager->SetVerboseLevel(1);
-  analysisManager->SetNtupleMerging(true);
+  //analysisManager->SetNtupleMerging(true);
     // Note: merging ntuples is available only with Root output
 
   // Book histograms, ntuple
   //
   
   // Creating histograms
-  analysisManager->CreateH1("Edet","Edep in detector", 100, 0., 1.*MeV);
-  analysisManager->CreateH1("Ldet","trackL in detector", 100, 0., 0.015*m);
-  analysisManager->CreateH1("StartingPt","StartingPt", 100, 0., 20*m);
+  //analysisManager->CreateH1("Edet","Edep in detector", 100, 0., 1.*MeV);
+  //analysisManager->CreateH1("Ldet","trackL in detector", 100, 0., 0.015*m);
+  //analysisManager->CreateH1("StartingPt","StartingPt", 100, 0., 20*m);
 
   // Creating ntuple
   //
-  analysisManager->CreateNtuple("ND", "Edep and TrackL and StartingPt");
-  analysisManager->CreateNtupleDColumn("Edet");
-  analysisManager->CreateNtupleDColumn("Ldet");
+  analysisManager->CreateNtuple("Data", "Run1");
+  analysisManager->CreateNtupleDColumn("E_dep Tot");
+  analysisManager->CreateNtupleDColumn("L_det Tot");
   analysisManager->CreateNtupleDColumn("StartingPt");
+  analysisManager->CreateNtupleDColumn("Event Number");
+  analysisManager->CreateNtupleDColumn("Event Number (Step)");
+  analysisManager->CreateNtupleDColumn("Pre-Step X");
+  analysisManager->CreateNtupleDColumn("Pre-Step Y");
+  analysisManager->CreateNtupleDColumn("Pre-Step Z");
+  analysisManager->CreateNtupleDColumn("Post-Step X");
+  analysisManager->CreateNtupleDColumn("Post-Step Y");
+  analysisManager->CreateNtupleDColumn("Post-Step Z");
   analysisManager->FinishNtuple();
+
+
 }
 
 
 RunAction::~RunAction()
 {
-  delete G4AnalysisManager::Instance();  
+  delete G4AnalysisManager::Instance();
+
 }
 
 
@@ -60,8 +70,9 @@ void RunAction::BeginOfRunAction(const G4Run* /*run*/)
 
   // Open an output file
   //
-  G4String fileName = "Run1Data.root";
+  G4String fileName = "Run1Data.csv";
   analysisManager->OpenFile(fileName);
+
 }
 
 
@@ -94,4 +105,5 @@ void RunAction::EndOfRunAction(const G4Run* /*run*/)
   //
   analysisManager->Write();
   analysisManager->CloseFile();
+
 }
