@@ -26,8 +26,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   auto particleDefinition 
     = G4ParticleTable::GetParticleTable()->FindParticle("e-");
   fParticleGun->SetParticleDefinition(particleDefinition);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
-  fParticleGun->SetParticleEnergy(1.11*MeV);
+  //fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
+  fParticleGun->SetParticleEnergy(1.33*MeV);
 
   
 }
@@ -70,8 +70,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   const G4double r = 8.*m;
   const G4double xmax = 8.1*m;
   G4double fstartingpoint = r + (xmax-r)*G4UniformRand(); 
-  fParticleGun
-    ->SetParticlePosition(G4ThreeVector(-fstartingpoint, 0., 0.));
+  fParticleGun->SetParticlePosition(G4ThreeVector(-fstartingpoint, 0., 0.));
+  G4double cosTheta = 2 * G4UniformRand() - 1., phi = twopi * G4UniformRand();
+  G4double sinTheta = std::sqrt(1. - cosTheta * cosTheta);
+  G4double ux = sinTheta * std::cos(phi),
+	  uy = sinTheta * std::sin(phi),
+	  uz = cosTheta;
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(ux, uy, uz));
   fParticleGun->GeneratePrimaryVertex(anEvent);
 
 }
