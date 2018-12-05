@@ -39,6 +39,7 @@ RunAction::RunAction()
   analysisManager->CreateNtupleDColumn("E_dep Tot");
   analysisManager->CreateNtupleDColumn("L_det Tot");
   analysisManager->CreateNtupleDColumn("StartingPt");
+  analysisManager->CreateNtupleDColumn("EndPt");
   analysisManager->CreateNtupleDColumn("Event Number");
   analysisManager->CreateNtupleDColumn("Event Number (Step)");
   analysisManager->CreateNtupleDColumn("Pre-Step X");
@@ -47,6 +48,11 @@ RunAction::RunAction()
   analysisManager->CreateNtupleDColumn("Post-Step X");
   analysisManager->CreateNtupleDColumn("Post-Step Y");
   analysisManager->CreateNtupleDColumn("Post-Step Z");
+  analysisManager->CreateNtupleDColumn("Momentum X");
+  analysisManager->CreateNtupleDColumn("Momentum Y");
+  analysisManager->CreateNtupleDColumn("Momentum Z");
+  analysisManager->CreateNtupleDColumn("Is Primary (0 = yes)");
+  analysisManager->CreateNtupleDColumn("Particle Name");
   analysisManager->FinishNtuple();
 
 
@@ -70,7 +76,7 @@ void RunAction::BeginOfRunAction(const G4Run* /*run*/)
 
   // Open an output file
   //
-  G4String fileName = "Run1Data.csv";
+  G4String fileName = "Run1DataGamma.csv";
   analysisManager->OpenFile(fileName);
 
 }

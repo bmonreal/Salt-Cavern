@@ -3,6 +3,7 @@
 
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
+#include "G4String.hh"
 
 
 /// Stepping action class /// 
@@ -14,6 +15,7 @@ class SteppingAction : public G4UserSteppingAction
     virtual ~SteppingAction();
 
     virtual void UserSteppingAction(const G4Step* aStep);
+	static G4double ConvertToDouble(const char* str);
 
 };
 

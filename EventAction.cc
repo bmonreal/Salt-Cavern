@@ -173,7 +173,8 @@ void EventAction::EndOfEventAction(const G4Event* event)
   analysisManager->FillNtupleDColumn(0, tubeHit->GetEdep());
   analysisManager->FillNtupleDColumn(1, tubeHit->GetTrackLength());
   analysisManager->FillNtupleDColumn(2, r);
-  analysisManager->FillNtupleDColumn(3, eventID);
+  analysisManager->FillNtupleDColumn(3, post);
+  analysisManager->FillNtupleDColumn(4, eventID);
   analysisManager->AddNtupleRow();  
 }  
 

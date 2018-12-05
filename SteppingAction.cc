@@ -7,6 +7,7 @@
 #include "RunAction.hh"
 
 #include "G4Step.hh"
+#include "G4String.hh"
 #include "G4Track.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
@@ -14,6 +15,7 @@
 #include "G4TrackingManager.hh"
 #include "G4SteppingManager.hh"
 #include "G4EventManager.hh"
+#include "G4UIcommand.hh"
 
 #include "Randomize.hh"
 #include <iomanip>
@@ -36,15 +38,31 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     auto postxyz = spost->GetPosition();
     G4cout<<"prepoint = "<<prexyz<<G4endl;
     G4cout<<"postpoint = "<<postxyz<<G4endl;
+	const G4Track* track = aStep->GetTrack();
+	G4ThreeVector m = track->GetMomentumDirection();
+	auto isPrimary = aStep->GetTrack()->GetParentID();
+	auto pcharge = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
+	//G4double pname = ConvertToDouble(name);
+	auto mx = m.x();
+	auto my = m.y();
+	auto mz = m.z();
+
+
+
 	G4int evtNb = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 	auto analysisManager = G4AnalysisManager::Instance();
-	analysisManager->FillNtupleDColumn(4, evtNb);
-	analysisManager->FillNtupleDColumn(5, prexyz.x());
-	analysisManager->FillNtupleDColumn(6, prexyz.y());
-	analysisManager->FillNtupleDColumn(7, prexyz.z());
-	analysisManager->FillNtupleDColumn(8, postxyz.x());
-	analysisManager->FillNtupleDColumn(9, postxyz.y());
-	analysisManager->FillNtupleDColumn(10, postxyz.z());
+	analysisManager->FillNtupleDColumn(5, evtNb);
+	analysisManager->FillNtupleDColumn(6, prexyz.x());
+	analysisManager->FillNtupleDColumn(7, prexyz.y());
+	analysisManager->FillNtupleDColumn(8, prexyz.z());
+	analysisManager->FillNtupleDColumn(9, postxyz.x());
+	analysisManager->FillNtupleDColumn(10, postxyz.y());
+	analysisManager->FillNtupleDColumn(11, postxyz.z());
+	analysisManager->FillNtupleDColumn(12, mx);
+	analysisManager->FillNtupleDColumn(13, my);
+	analysisManager->FillNtupleDColumn(14, mz);
+	analysisManager->FillNtupleDColumn(15, isPrimary);
+	analysisManager->FillNtupleDColumn(16, pcharge);
 	analysisManager->AddNtupleRow();
 
     if (spre && spost && spre->GetPhysicalVolume()->GetName() ==
@@ -60,3 +78,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
         << spost->GetTouchable()->GetReplicaNumber() << ", "
         << spost->GetTouchable()->GetCopyNumber() << G4endl;
 }
+
+G4double SteppingAction::ConvertToDouble(const char* str)
+{
+	return G4double();
+}
+

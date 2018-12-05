@@ -24,10 +24,10 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   // default particle kinematic
   //
   auto particleDefinition 
-    = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+    = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
   fParticleGun->SetParticleDefinition(particleDefinition);
   //fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
-  fParticleGun->SetParticleEnergy(1.33*MeV);
+  fParticleGun->SetParticleEnergy(1.46*MeV);
 
   
 }
@@ -67,10 +67,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       "MyCode0002", JustWarning, msg);
   } 
   // Set gun position: Uniformly random on (8m, 9m)
+  G4double alpha = twopi * G4UniformRand();  //alpha uniform in (0, 2*pi)
+  G4double uxx = std::cos(alpha);
+  G4double uyy = std::sin(alpha);
+
   const G4double r = 8.*m;
-  const G4double xmax = 8.1*m;
-  G4double fstartingpoint = r + (xmax-r)*G4UniformRand(); 
-  fParticleGun->SetParticlePosition(G4ThreeVector(-fstartingpoint, 0., 0.));
+  const G4double xmax = 8.01*m;
+  G4double fstartingpoint = r + (xmax-r)*G4UniformRand();
+  //G4double fstartingpoint = 8.0001*m;
+  fParticleGun->SetParticlePosition(G4ThreeVector(-fstartingpoint*uxx, -fstartingpoint*uyy, 0.));
   G4double cosTheta = 2 * G4UniformRand() - 1., phi = twopi * G4UniformRand();
   G4double sinTheta = std::sqrt(1. - cosTheta * cosTheta);
   G4double ux = sinTheta * std::cos(phi),
